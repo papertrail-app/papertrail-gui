@@ -1,70 +1,145 @@
 import tkinter as tk
+from tkinter import ttk
+import sv_ttk
 from tkinter import filedialog
+from tkinter import messagebox
 import os
+from papertrail.papertraildriver import PaperTrailDriver
 
-class PapertrailUI:
+class PaperTrailGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("PaperTrail")
-        self.root.configure(bg="white")
 
-        # Styles
-        self.label_style = {'font': ('Arial', 12), 'bg': 'white'}
-        self.button_style = {'font': ('Arial', 12), 'width': 20, 'bg': 'lightgrey', 'bd': 0, 'highlightthickness': 0, 'borderwidth': 0}
-        self.entry_style = {'font': ('Arial', 12)}
+        # Initialize Vars
+        self.filepath_encryption = ""
+        self.filepath_decryption = ""
 
+        # Add and Bind Widgets
+        self.__add_widgets()
+        self.__bind_theme()
 
-        self.title_label = tk.Label(self.root, text="PaperTrail", font=('Arial', 18, 'bold'), bg='white')
-        self.title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky='ew')
-
-
-        tk.Label(self.root, text="Encrypt", font=('Arial', 14, 'bold'), bg='white').grid(row=1, column=0, padx=10, pady=10, sticky='n')
+        # Initialize PaperTrailDriver
+        self.driver = PaperTrailDriver()
 
 
-        self.encrypt_frame = tk.LabelFrame(self.root, text="", padx=20, pady=20, bg='white')
-        self.encrypt_frame.grid(row=2, column=0, padx=10, pady=10, sticky='nsew')
-        self.root.grid_rowconfigure(2, weight=1)
+    def __add_widgets(self):
+        
+        ### GRID CONFIGURATION
+        
         self.root.grid_columnconfigure(0, weight=1)
-
-        tk.Label(self.encrypt_frame, text="Select a file to encrypt:", **self.label_style).grid(row=0, column=0, sticky='w')
-        self.select_file_button_encryption = tk.Button(self.encrypt_frame, text="Select File", **self.button_style, command=self.select_file_encryption)
-        self.select_file_button_encryption.grid(row=1, column=0, padx=5, pady=5, sticky='w')
-
-        tk.Label(self.encrypt_frame, text="Encryption Password (12 characters minimum):", **self.label_style).grid(row=2, column=0, sticky='w')
-        self.password_entry_encryption = tk.Entry(self.encrypt_frame, show="*", **self.entry_style)
-        self.password_entry_encryption.grid(row=3, column=0, padx=5, pady=5, sticky='ew')
-
-        self.encrypt_button = tk.Button(self.encrypt_frame, text="Encrypt", **self.button_style)
-        self.encrypt_button.grid(row=4, column=0, padx=5, pady=5, sticky='w')
-
-
-        tk.Label(self.root, text="Decrypt", font=('Arial', 14, 'bold'), bg='white').grid(row=1, column=1, padx=10, pady=10, sticky='n')
-
-
-        self.decrypt_frame = tk.LabelFrame(self.root, text="", padx=20, pady=20, bg='white')
-        self.decrypt_frame.grid(row=2, column=1, padx=10, pady=10, sticky='nsew')
-        self.root.grid_rowconfigure(2, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
 
-        tk.Label(self.decrypt_frame, text="Select a scan to decrypt:", **self.label_style).grid(row=0, column=0, sticky='w')
-        self.select_file_button_decryption = tk.Button(self.decrypt_frame, text="Select File", **self.button_style, command=self.select_file_decryption)
-        self.select_file_button_decryption.grid(row=1, column=0, padx=5, pady=5, sticky='w')
+        ### ENCRYPT SIDE ###
+        
+        self.encrypt_frame = ttk.LabelFrame(self.root, text="Encrypt", padding=(20, 20))
+        self.encrypt_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
-        tk.Label(self.decrypt_frame, text="Decryption Password (12 characters minimum):", **self.label_style).grid(row=2, column=0, sticky='w')
-        self.password_entry_decryption = tk.Entry(self.decrypt_frame, show="*", **self.entry_style)
-        self.password_entry_decryption.grid(row=3, column=0, padx=5, pady=5, sticky='ew')
+        self.encrypt_sel_label = ttk.Label(self.encrypt_frame, text="Select a file to encrypt:")
+        self.encrypt_sel_label.grid(row=1, column=0, padx=5, pady=5, sticky='w')
+        self.select_file_button_encryption = ttk.Button(self.encrypt_frame, text="Select File", command=self.__select_file_encryption)
+        self.select_file_button_encryption.grid(row=2, column=0, padx=5, pady=5, sticky='w')
 
-        self.decrypt_button = tk.Button(self.decrypt_frame, text="Decrypt", **self.button_style)
-        self.decrypt_button.grid(row=4, column=0, padx=5, pady=5, sticky='w')
+        self.spacer03 = ttk.Label(self.encrypt_frame, text="")
+        self.spacer03.grid(row=3, column=0, padx=0, pady=0, sticky='w')
+        
+        self.encrypt_pass_label = ttk.Label(self.encrypt_frame, text="Encryption Password (12 characters minimum):")
+        self.encrypt_pass_label.grid(row=4, column=0, padx=5, pady=5, sticky='w')
+        self.password_entry_encryption = ttk.Entry(self.encrypt_frame, show="*")
+        self.password_entry_encryption.grid(row=5, column=0, padx=5, pady=5, sticky='ew')
 
-    def select_file_encryption(self):
-        self.filepath_encryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select File to Encrypt", filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+        self.spacer06 = ttk.Label(self.encrypt_frame, text="")
+        self.spacer06.grid(row=6, column=0, padx=0, pady=0, sticky='w')
+        
+        self.encrypt_button = ttk.Button(self.encrypt_frame, text="Encrypt", style="Accent.TButton", command=self.__submit_encrypt)
+        self.encrypt_button.grid(row=7, column=0, padx=5, pady=5, sticky='w')
 
-    def select_file_decryption(self):
-        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select File to Decrypt", filetypes=(("Encrypted files", "*.enc"), ("All files", "*.*")))
+        ### DECRYPT SIDE ###
+
+        self.decrypt_frame = ttk.LabelFrame(self.root, text="Decrypt", padding=(20, 20))
+        self.decrypt_frame.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
+
+        self.decrypt_sel_label = ttk.Label(self.decrypt_frame, text="Select a scan to decrypt:")
+        self.decrypt_sel_label.grid(row=1, column=0, padx=5, pady=5, sticky='w')
+        self.select_file_button_decryption = ttk.Button(self.decrypt_frame, text="Select File", command=self.__select_file_decryption)
+        self.select_file_button_decryption.grid(row=2, column=0, padx=5, pady=5, sticky='w')
+
+        self.spacer13 = ttk.Label(self.decrypt_frame, text="")
+        self.spacer13.grid(row=3, column=1, padx=0, pady=0, sticky='w')
+
+        self.decrypt_pass_label = ttk.Label(self.decrypt_frame, text="Decryption Password (12 characters minimum):")
+        self.decrypt_pass_label.grid(row=4, column=0, padx=5, pady=5, sticky='w')
+        self.password_entry_decryption = ttk.Entry(self.decrypt_frame, show="*")
+        self.password_entry_decryption.grid(row=5, column=0, padx=5, pady=5, sticky='ew')
+
+        self.spacer16 = ttk.Label(self.decrypt_frame, text="")
+        self.spacer16.grid(row=6, column=1, padx=0, pady=0, sticky='w')
+
+        self.decrypt_button = ttk.Button(self.decrypt_frame, text="Decrypt", style="Accent.TButton", command=self.__submit_decrypt)
+        self.decrypt_button.grid(row=7, column=0, padx=5, pady=5, sticky='w')
+
+        
+    def __select_file_encryption(self):
+        self.filepath_encryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Data File to Encrypt")
+
+    def __select_file_decryption(self):
+        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select PaperTrail PDF to Decrypt", filetypes=(("PDF files", "*.pdf"), ("All files", "*.*")))
+
+    def __validate_pass_encryption(self, *_):
+        if len(self.password_entry_encryption.get()) < 12:
+            self.password_entry_encryption.state(["invalid"])
+        else:
+            self.password_entry_encryption.state(["!invalid"])        
+        
+    def __validate_pass_decryption(self, *_):
+        if len(self.password_entry_decryption.get()) < 12:
+            self.password_entry_decryption.state(["invalid"])
+        else:
+            self.password_entry_decryption.state(["!invalid"]) 
+
+    def __bind_theme(self):
+        self.password_entry_encryption.bind("<FocusOut>", self.__validate_pass_encryption)
+        self.password_entry_encryption.bind("<FocusIn>", self.__validate_pass_encryption)
+        self.password_entry_encryption.bind("<KeyRelease>", self.__validate_pass_encryption)
+
+        self.password_entry_decryption.bind("<FocusOut>", self.__validate_pass_decryption)
+        self.password_entry_decryption.bind("<FocusIn>", self.__validate_pass_decryption)
+        self.password_entry_decryption.bind("<KeyRelease>", self.__validate_pass_decryption)
+
+    def __submit_encrypt(self):
+        enc_fp = self.filepath_encryption
+        enc_pass = self.password_entry_encryption.get()
+        if enc_fp == "":
+            messagebox.showerror(title="Error", message="No file to encrypt was selected!")
+        elif len(enc_pass) < 12:
+            messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
+        else:
+            designator = self.driver.gen_designator()
+            encryption_dest = filedialog.asksaveasfilename(initialdir=os.getcwd(), initialfile=)
+            try:
+                return_path = self.driver.encrypt(password=enc_pass, data_path=enc_fp, dest_path="./test.pdf", designator=designator)
+                messagebox.showinfo(title="Encrypted Successfully!", message=f"Document has been saved to {return_path}.")
+            except Exception as e:
+                messagebox.showerror(title="Error", message=f"Something went wrong and the data couldn't be encrypted!\n\nError:\n{e}")
+
+
+    def __submit_decrypt(self):
+        dec_fp = self.filepath_decryption
+        dec_pass = self.password_entry_decryption.get()
+        if dec_fp == "":
+            messagebox.showerror(title="Error", message="No file to decrypt was selected!")
+        elif len(dec_pass) < 12:
+            messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
+        else:
+            try:
+                return_path = self.driver.decrypt(password=dec_pass, document_path=dec_fp, dest_path="./test.png")
+                messagebox.showinfo(title="Decrypted Successfully!", message=f"Data has been saved to {return_path}.")
+            except Exception as e:
+                messagebox.showerror(title="Error", message=f"Something went wrong and the file couldn't be decrypted!\n\nError:\n{e}")
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = PapertrailUI(root)
+    app = PaperTrailGUI(root)
+    sv_ttk.set_theme("dark")
     root.mainloop()
