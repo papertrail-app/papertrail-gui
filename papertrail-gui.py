@@ -4,6 +4,7 @@ import sv_ttk
 from tkinter import filedialog
 from tkinter import messagebox
 import os
+import sys
 from papertrail.papertraildriver import PaperTrailDriver
 
 class PaperTrailGUI:
@@ -144,8 +145,30 @@ class PaperTrailGUI:
                 messagebox.showerror(title="Error", message=f"Something went wrong and the file couldn't be decrypted!\n\nError:\n{e}")
 
 
+def add_poppler_path():
+    # Adds poppler in resources folder to PATH on Windows
+    rel_poppler_binpath = os.path.join("resources", "poppler-24.02.0", "Library", "bin")
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller onefile compatibility
+        os.chdir(sys._MEIPASS)
+        poppler_binpath = os.path.join(sys._MEIPASS, rel_poppler_binpath)
+    else:
+        # Just use path of the python script
+        poppler_binpath = os.path.abspath(os.path.join(os.path.dirname(__file__), rel_poppler_binpath))
+    os.environ["PATH"]+=os.pathsep+poppler_binpath
+
+
 if __name__ == "__main__":
+    # Adds bundled poppler to PATH if on Windows
+    if sys.platform.startswith('win'):
+        add_poppler_path()
+    
+    # Initialize root window and application
     root = tk.Tk()
     app = PaperTrailGUI(root)
+
+    # Set Sun Valley TTK theme
     sv_ttk.set_theme("dark")
+
+    # Main Loop
     root.mainloop()
