@@ -147,7 +147,7 @@ class PaperTrailGUI:
 
 def add_poppler_path():
     # Adds poppler in resources folder to PATH on Windows
-    rel_poppler_binpath = os.path.join("resources", "poppler-24.02.0", "Library", "bin")
+    rel_poppler_binpath = os.path.join("poppler", "Library", "bin")
     if hasattr(sys, '_MEIPASS'):
         # PyInstaller onefile compatibility
         os.chdir(sys._MEIPASS)
