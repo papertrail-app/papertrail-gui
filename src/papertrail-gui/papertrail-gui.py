@@ -81,11 +81,11 @@ class PaperTrailGUI:
 
         
     def __select_file_encryption(self):
-        self.filepath_encryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Data File to Encrypt")
+        self.filepath_encryption = filedialog.askopenfilename(initialdir=os.path.expanduser( '~' ), title="Select Data File to Encrypt")
 
 
     def __select_file_decryption(self):
-        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select PaperTrail Document to Decrypt", filetypes=(("PDF files", "*.pdf"), ("All files", "*.*")))
+        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.path.expanduser( '~' ), title="Select PaperTrail Document to Decrypt", filetypes=(("PDF files", "*.pdf"), ("All files", "*.*")))
 
 
     def __validate_pass_encryption(self, *_):
@@ -121,7 +121,7 @@ class PaperTrailGUI:
             messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
         else:
             designator = self.driver.gen_designator()
-            encryption_dest = filedialog.asksaveasfilename(title="Select where to save PaperTrail Document",initialdir=os.getcwd(), initialfile=f"papertrail_{designator}.pdf")
+            encryption_dest = filedialog.asksaveasfilename(title="Select where to save PaperTrail Document",initialdir=os.path.expanduser( '~' ), initialfile=f"papertrail_{designator}.pdf")
             try:
                 return_path = self.driver.encrypt(password=enc_pass, data_path=enc_fp, dest_path=encryption_dest, designator=designator)
                 messagebox.showinfo(title="Encrypted Successfully!", message=f"Document has been saved to {return_path}.")
@@ -137,7 +137,7 @@ class PaperTrailGUI:
         elif len(dec_pass) < 12:
             messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
         else:
-            decryption_dest = filedialog.asksaveasfilename(title="Select file to save decrypted data in", initialdir=os.getcwd())
+            decryption_dest = filedialog.asksaveasfilename(title="Select file to save decrypted data in", initialdir=os.path.expanduser( '~' ))
             try:
                 return_path = self.driver.decrypt(password=dec_pass, document_path=dec_fp, dest_path=decryption_dest)
                 messagebox.showinfo(title="Decrypted Successfully!", message=f"Data has been saved to {return_path}.")
