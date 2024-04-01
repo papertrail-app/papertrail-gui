@@ -82,20 +82,24 @@ class PaperTrailGUI:
     def __select_file_encryption(self):
         self.filepath_encryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Data File to Encrypt")
 
+
     def __select_file_decryption(self):
-        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select PaperTrail PDF to Decrypt", filetypes=(("PDF files", "*.pdf"), ("All files", "*.*")))
+        self.filepath_decryption = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select PaperTrail Document to Decrypt", filetypes=(("PDF files", "*.pdf"), ("All files", "*.*")))
+
 
     def __validate_pass_encryption(self, *_):
         if len(self.password_entry_encryption.get()) < 12:
             self.password_entry_encryption.state(["invalid"])
         else:
             self.password_entry_encryption.state(["!invalid"])        
+
         
     def __validate_pass_decryption(self, *_):
         if len(self.password_entry_decryption.get()) < 12:
             self.password_entry_decryption.state(["invalid"])
         else:
             self.password_entry_decryption.state(["!invalid"]) 
+
 
     def __bind_theme(self):
         self.password_entry_encryption.bind("<FocusOut>", self.__validate_pass_encryption)
@@ -106,6 +110,7 @@ class PaperTrailGUI:
         self.password_entry_decryption.bind("<FocusIn>", self.__validate_pass_decryption)
         self.password_entry_decryption.bind("<KeyRelease>", self.__validate_pass_decryption)
 
+
     def __submit_encrypt(self):
         enc_fp = self.filepath_encryption
         enc_pass = self.password_entry_encryption.get()
@@ -115,9 +120,9 @@ class PaperTrailGUI:
             messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
         else:
             designator = self.driver.gen_designator()
-            encryption_dest = filedialog.asksaveasfilename(initialdir=os.getcwd(), initialfile=)
+            encryption_dest = filedialog.asksaveasfilename(title="Select where to save PaperTrail Document",initialdir=os.getcwd(), initialfile=f"papertrail_{designator}.pdf")
             try:
-                return_path = self.driver.encrypt(password=enc_pass, data_path=enc_fp, dest_path="./test.pdf", designator=designator)
+                return_path = self.driver.encrypt(password=enc_pass, data_path=enc_fp, dest_path=encryption_dest, designator=designator)
                 messagebox.showinfo(title="Encrypted Successfully!", message=f"Document has been saved to {return_path}.")
             except Exception as e:
                 messagebox.showerror(title="Error", message=f"Something went wrong and the data couldn't be encrypted!\n\nError:\n{e}")
@@ -131,8 +136,9 @@ class PaperTrailGUI:
         elif len(dec_pass) < 12:
             messagebox.showerror(title="Error", message="Password must be at least 12 characters long")
         else:
+            decryption_dest = filedialog.asksaveasfilename(title="Select file to save decrypted data in", initialdir=os.getcwd())
             try:
-                return_path = self.driver.decrypt(password=dec_pass, document_path=dec_fp, dest_path="./test.png")
+                return_path = self.driver.decrypt(password=dec_pass, document_path=dec_fp, dest_path=decryption_dest)
                 messagebox.showinfo(title="Decrypted Successfully!", message=f"Data has been saved to {return_path}.")
             except Exception as e:
                 messagebox.showerror(title="Error", message=f"Something went wrong and the file couldn't be decrypted!\n\nError:\n{e}")
