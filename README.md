@@ -25,7 +25,7 @@ In addition to the Python modules outlined in `pyproject.toml`, in order to use 
 
 ###### Windows:
 
-On Windows, `poppler` needs to be installed. Follow the instructions from the `pdf2image` module located [here](https://pypi.org/project/pdf2image/) to install for Windows.
+On Windows, PaperTrail depends on `poppler` and `zbar`, but they have been bundled here and should work without anything extra both when running the Python module and when running the release executable.
 
 ###### Linux:
 
